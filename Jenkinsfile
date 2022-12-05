@@ -9,8 +9,8 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''pip install virtualenv
-                      virtualenv --no-site-packages .
-                      source bin/activate
+                      python -m venv env
+                      source env/bin/activate
                       pip install -r requirements.txt
                       deactivate'''
             }
