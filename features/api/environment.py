@@ -44,7 +44,7 @@ def before_all(context):
     context.config.test_data = dict()
 
     # Очистка "старых" логов прогонов
-    os.remove(FILE_DEBUG)
+    # os.remove(FILE_DEBUG)
 
     # импорт всех модулей в папке pulse_api (для корректной работы метода __subclasses__() класса PulseAPILibrary)
     from API import api_requests, api_library, common_steps
