@@ -3,7 +3,7 @@
 """
 
 from behave import step
-from features.api.request.api_request import FreeFootballAPI
+from features.request.api_request import FreeFootballAPI
 
 
 @step('Получить информацию о стадионах страны "{area_id}"')
