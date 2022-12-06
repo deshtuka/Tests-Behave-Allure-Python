@@ -1,34 +1,54 @@
 pipeline {
     agent any
+    parameters {
+        gitParameter (  branch: '',
+                        branchFilter: 'origin/(.*)',
+                        defaultValue: 'master',
+                        description: '',
+                        name: 'BRANCH',
+                        quickFilterEnabled: true,
+                        selectedValue: 'TOP',
+                        sortMode: 'DESCENDING',
+                        tagFilter: '*',
+                        type: 'PT_BRANCH',
+                        useRepository: 'https://github.com/deshtuka/Tests-Behave-Allure-Python.git')
+    }
+
     stages {
         stage('Cloning Git') {
             steps {
-                git 'https://github.com/deshtuka/Tests-Behave-Allure-Python.git'
+                deleteDir()
+                git branch: "${params.BRANCH}", url: 'https://github.com/deshtuka/Tests-Behave-Allure-Python.git'
             }
         }
         stage('Build') {
-            steps {
-                sh '''pip install virtualenv
-                      python3 -m venv env
-                      source env/bin/activate
-                      pip install -r requirements.txt
-                      deactivate'''
-            }
+        	steps {
+        		sh """
+        			python3 --version
+        			python3 -m venv .venv
+        			. .venv/bin/activate
+        			pip3 install -r requirements.txt
+        			pip3 list
+        		"""
+        	}
         }
         stage('Test') {
             steps {
-                sh '''source env/bin/activate
-                      behave -f allure -o report ./features/api/api_test.feature'''
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh """
+                        . .venv/bin/activate
+                        /var/jenkins_home/.local/bin/behave -f allure_behave.formatter:AllureFormatter -o allure_result_folder --tags=${TAGS}"""
+                }
             }
         }
         stage('Reports') {
             steps {
                 allure([
-                includeProperties: true,
+                includeProperties: false,
                 jdk              : '',
                 properties       : [],
                 reportBuildPolicy: 'ALWAYS',
-                results          : [[path: 'report']]
+                results          : [[path: 'allure_result_folder']]
                 ])
             }
         }
